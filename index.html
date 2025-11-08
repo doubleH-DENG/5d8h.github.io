@@ -15,6 +15,9 @@
                         secondary: '#6366F1',
                         light: '#F3F4F6',
                         dark: '#1F2937',
+                        orange: '#FF7A00',
+                        cardBlue: '#E6F0FF', // 蔚蓝底色
+                        cardBorder: '#BEDAFF', // 卡片边框色
                     },
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -33,6 +36,11 @@
             }
             .transition-smooth {
                 transition: all 0.3s ease;
+            }
+            .xiaohongshu-card {
+                border-radius: 16px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                overflow: hidden;
             }
         }
     </style>
@@ -62,6 +70,12 @@
                     <button id="searchBtn" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-smooth whitespace-nowrap">
                         <i class="fa fa-search mr-1"></i> 搜索
                     </button>
+                    <!-- 橙色"我要曝料"按钮 -->
+                    <a href="https://zcnx1v1nn8b0.feishu.cn/share/base/form/shrcneTeyEpXSfNUZv72zv7NMch" 
+                       target="_blank" 
+                       class="bg-orange text-white px-6 py-2 rounded-lg hover:bg-orange/90 transition-smooth whitespace-nowrap">
+                        <i class="fa fa-bullhorn mr-1"></i> 我要曝料
+                    </a>
                 </div>
             </div>
         </div>
@@ -155,17 +169,41 @@
         </div>
     </main>
 
-    <!-- 企业详情模态框 -->
-    <div id="enterpriseModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
-            <div class="p-4 border-b border-gray-100 flex justify-between items-center">
-                <h2 id="modalTitle" class="text-xl font-bold"></h2>
-                <button id="closeModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fa fa-times text-xl"></i>
-                </button>
-            </div>
-            <div id="modalContent" class="p-4">
-                <!-- 企业详情将通过JS动态生成 -->
+    <!-- 企业详情模态框 - 小红书风格卡片式设计 -->
+    <div id="enterpriseModal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4">
+        <!-- 卡片容器添加缩放动画 -->
+        <div class="max-w-2xl w-full max-h-[90vh] overflow-auto transform transition-all duration-300 scale-95 opacity-0" id="modalCard">
+            <!-- 蔚蓝底色卡片 -->
+            <div class="xiaohongshu-card bg-cardBlue border border-cardBorder">
+                <!-- 卡片头部 -->
+                <div class="p-5 border-b border-cardBorder flex justify-between items-center">
+                    <h2 id="modalTitle" class="text-xl font-bold text-primary"></h2>
+                    <button id="closeModal" class="w-8 h-8 rounded-full bg-white/70 flex items-center justify-center text-gray-600 hover:bg-white transition-smooth">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- 卡片内容区 -->
+                <div id="modalContent" class="p-5 space-y-6">
+                    <!-- 企业详情将通过JS动态生成 -->
+                </div>
+                
+                <!-- 卡片底部操作区 -->
+                <div class="p-4 border-t border-cardBorder bg-white/50 flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <button class="flex items-center gap-1 text-gray-600 hover:text-primary transition-smooth">
+                            <i class="fa fa-heart-o"></i>
+                            <span>收藏</span>
+                        </button>
+                        <button class="flex items-center gap-1 text-gray-600 hover:text-primary transition-smooth">
+                            <i class="fa fa-share-alt"></i>
+                            <span>分享</span>
+                        </button>
+                    </div>
+                    <button class="bg-primary text-white px-4 py-2 rounded-full text-sm hover:bg-primary/90 transition-smooth">
+                        <i class="fa fa-comment-o mr-1"></i> 查看更多评价
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -365,6 +403,7 @@
         const regionDistributionEl = document.getElementById('regionDistribution');
         const workHoursRankingEl = document.getElementById('workHoursRanking');
         const enterpriseModalEl = document.getElementById('enterpriseModal');
+        const modalCardEl = document.getElementById('modalCard');
         const modalTitleEl = document.getElementById('modalTitle');
         const modalContentEl = document.getElementById('modalContent');
         const closeModalBtn = document.getElementById('closeModal');
@@ -516,7 +555,7 @@
             });
         }
 
-        // 显示企业详情
+        // 显示企业详情 - 小红书风格卡片
         function showEnterpriseDetails(enterprise) {
             // 更新浏览量
             enterprises = enterprises.map(e => 
@@ -535,63 +574,86 @@
                              enterprise.weekly_hours <= 45 ? 'bg-yellow-100 text-yellow-700' : 
                              'bg-red-100 text-red-700';
             
+            // 小红书风格的卡片内容布局
             modalContentEl.innerHTML = `
-                <div class="flex flex-wrap gap-3 mb-4">
+                <!-- 企业基本信息标签 -->
+                <div class="flex flex-wrap gap-2 mb-4">
                     <span class="px-3 py-1 rounded-full text-sm font-medium ${hoursClass}">
                         ${enterprise.weekly_hours}小时/周
                     </span>
-                    <span class="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
+                    <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-700">
                         <i class="fa fa-users mr-1"></i> ${enterprise.employees.toLocaleString()}人
                     </span>
-                    <span class="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
+                    <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-700">
+                        <i class="fa fa-map-marker mr-1"></i> ${enterprise.region}
+                    </span>
+                    <span class="px-3 py-1 bg-white/70 rounded-full text-sm text-gray-700">
                         <i class="fa fa-eye mr-1"></i> 浏览: ${enterprise.views}
                     </span>
                 </div>
                 
+                <!-- 企业信息卡片 -->
                 <div class="space-y-4">
-                    <div>
-                        <h3 class="text-sm font-semibold text-gray-500 mb-1">企业地址</h3>
-                        <p class="flex items-start">
-                            <i class="fa fa-map-marker text-primary mt-1 mr-2"></i>
-                            ${enterprise.address}
-                        </p>
+                    <!-- 企业地址 -->
+                    <div class="bg-white/80 p-4 rounded-xl">
+                        <h3 class="text-sm font-semibold text-gray-500 mb-2 flex items-center">
+                            <i class="fa fa-map-marker text-primary mr-2"></i>企业地址
+                        </h3>
+                        <p class="text-gray-700">${enterprise.address}</p>
                     </div>
                     
-                    <div>
-                        <h3 class="text-sm font-semibold text-gray-500 mb-1">供应链信息</h3>
-                        <p class="flex items-start">
-                            <i class="fa fa-industry text-primary mt-1 mr-2"></i>
-                            ${enterprise.supply_chain}
-                        </p>
+                    <!-- 供应链信息 -->
+                    <div class="bg-white/80 p-4 rounded-xl">
+                        <h3 class="text-sm font-semibold text-gray-500 mb-2 flex items-center">
+                            <i class="fa fa-industry text-primary mr-2"></i>供应链信息
+                        </h3>
+                        <p class="text-gray-700">${enterprise.supply_chain}</p>
                     </div>
                     
-                    <div>
-                        <h3 class="text-sm font-semibold text-gray-500 mb-1">用工情况详情</h3>
-                        <p class="flex items-start">
-                            <i class="fa fa-clock-o text-primary mt-1 mr-2"></i>
-                            ${enterprise.details}
-                        </p>
+                    <!-- 用工情况详情 -->
+                    <div class="bg-white/80 p-4 rounded-xl">
+                        <h3 class="text-sm font-semibold text-gray-500 mb-2 flex items-center">
+                            <i class="fa fa-clock-o text-primary mr-2"></i>用工情况详情
+                        </h3>
+                        <p class="text-gray-700">${enterprise.details}</p>
                     </div>
                     
-                    <div>
-                        <h3 class="text-sm font-semibold text-gray-500 mb-1">员工评价</h3>
-                        <p class="flex items-start">
-                            <i class="fa fa-comment text-primary mt-1 mr-2"></i>
-                            ${enterprise.complaints}
-                        </p>
+                    <!-- 员工评价 -->
+                    <div class="bg-white/80 p-4 rounded-xl">
+                        <h3 class="text-sm font-semibold text-gray-500 mb-2 flex items-center">
+                            <i class="fa fa-comment text-primary mr-2"></i>员工评价
+                        </h3>
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary mr-3 mt-1 flex-shrink-0">
+                                <i class="fa fa-user"></i>
+                            </div>
+                            <p class="text-gray-700">${enterprise.complaints}</p>
+                        </div>
                     </div>
                 </div>
             `;
             
-            // 显示模态框
+            // 显示模态框并添加动画效果
             enterpriseModalEl.classList.remove('hidden');
             enterpriseModalEl.classList.add('flex');
+            // 触发重排后添加动画类
+            setTimeout(() => {
+                modalCardEl.classList.remove('scale-95', 'opacity-0');
+                modalCardEl.classList.add('scale-100', 'opacity-100');
+            }, 10);
         }
 
         // 关闭模态框
         function closeModal() {
-            enterpriseModalEl.classList.add('hidden');
-            enterpriseModalEl.classList.remove('flex');
+            // 添加退出动画
+            modalCardEl.classList.remove('scale-100', 'opacity-100');
+            modalCardEl.classList.add('scale-95', 'opacity-0');
+            
+            // 动画结束后隐藏
+            setTimeout(() => {
+                enterpriseModalEl.classList.add('hidden');
+                enterpriseModalEl.classList.remove('flex');
+            }, 300);
         }
 
         // 搜索企业（支持省份筛选+关键词搜索）
